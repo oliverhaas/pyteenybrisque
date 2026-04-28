@@ -5,8 +5,6 @@ over alpha in [0.2, 10] step 0.001. We bake the same grid into a vendored
 npz and reproduce the search exactly.
 """
 
-from __future__ import annotations
-
 from importlib import resources
 
 import numpy as np

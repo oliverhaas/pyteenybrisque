@@ -1,7 +1,5 @@
 """Minimal numpy-only BRISQUE no-reference image quality scorer."""
 
-from __future__ import annotations
-
 from os import PathLike
 
 import numpy as np
@@ -34,9 +32,7 @@ def _to_luma(image: object) -> npt.NDArray[np.float32]:
         raise ValueError(f"unsupported image shape {arr.shape}")
     arr = arr[..., :3]
 
-    rgb01 = (
-        arr.astype(np.float32) / np.float32(255.0) if np.issubdtype(arr.dtype, np.integer) else arr.astype(np.float32)
-    )
+    rgb01 = arr.astype(np.float32) / 255.0 if np.issubdtype(arr.dtype, np.integer) else arr.astype(np.float32)
     luma01 = rgb01 @ _LUMA_RGB
     return np.round(luma01 * 255.0).astype(np.float32)
 

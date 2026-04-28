@@ -4,8 +4,6 @@ Run once to (re)produce `pyteenybrisque/_weights/svm.npz`.
 Requires the dev environment (`uv sync --group dev`).
 """
 
-from __future__ import annotations
-
 from pathlib import Path
 
 import numpy as np

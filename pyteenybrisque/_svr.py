@@ -1,7 +1,5 @@
 """RBF SVR scoring against the BRISQUE-trained support vectors."""
 
-from __future__ import annotations
-
 from importlib import resources
 
 import numpy as np

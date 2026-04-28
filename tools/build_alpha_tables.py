@@ -8,8 +8,6 @@ the runtime can do an identical argmin without recomputing lgammas.
 Run once to (re)produce `pyteenybrisque/_weights/alpha.npz`.
 """
 
-from __future__ import annotations
-
 from pathlib import Path
 
 import numpy as np

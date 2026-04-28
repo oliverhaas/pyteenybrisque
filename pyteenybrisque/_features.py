@@ -1,7 +1,5 @@
 """BRISQUE NSS features: MSCN map -> GGD + 4 AGGD fits = 18 features per scale."""
 
-from __future__ import annotations
-
 import math
 
 import numpy as np
@@ -39,9 +37,8 @@ def _aggd(block: npt.NDArray[np.float32]) -> tuple[float, float, float, float]:
     rhatnorm = rhat * (gammahat**3 + 1.0) * (gammahat + 1.0) / (gammahat * gammahat + 1.0) ** 2
 
     alpha = find_alpha_aggd(rhatnorm)
-    eta = (right_std - left_std) * math.exp(
-        math.lgamma(2.0 / alpha) - (math.lgamma(1.0 / alpha) + math.lgamma(3.0 / alpha)) / 2.0,
-    )
+    log_eta = math.lgamma(2.0 / alpha) - (math.lgamma(1.0 / alpha) + math.lgamma(3.0 / alpha)) / 2.0
+    eta = (right_std - left_std) * math.exp(log_eta)
     return alpha, eta, left_std, right_std
 
 

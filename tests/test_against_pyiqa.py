@@ -7,8 +7,6 @@ float32 conv2d/normalisation introduces its own ~0.1-1.0 BRISQUE-point noise
 on natural images. The tolerance below is sized to that noise floor.
 """
 
-from __future__ import annotations
-
 from pathlib import Path
 
 import numpy as np
@@ -19,7 +17,7 @@ from PIL import Image
 import pyteenybrisque
 
 _DATA = Path(__file__).parent / "data"
-_IMAGES = sorted(_DATA.glob("*.jpg"))
+_IMAGES = sorted(p for p in _DATA.iterdir() if p.suffix.lower() in {".jpg", ".png", ".webp"})
 
 # Lower is better. Typical scores 0-100. A 1-point disagreement is
 # perceptually meaningless -- it's swamped by pyiqa's float32 noise.
@@ -72,3 +70,9 @@ def test_deterministic():
     a = pyteenybrisque.score(path)
     b = pyteenybrisque.score(path)
     assert a == b
+
+
+def test_rejects_unsupported_shape():
+    bad = np.zeros((4, 4, 5), dtype=np.uint8)
+    with pytest.raises(ValueError, match="unsupported image shape"):
+        pyteenybrisque.score(bad)

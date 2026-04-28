@@ -6,35 +6,33 @@ exactly into two 1D Gaussians of the same sigma) followed by `imfilter`
 with `padding='same'` (which collapses to zero padding).
 """
 
-from __future__ import annotations
-
 import numpy as np
 import numpy.typing as npt
 
-KERNEL_SIZE = 7
-SIGMA = 7.0 / 6.0
+_KERNEL_SIZE = 7
+_SIGMA = 7.0 / 6.0
 
 
 def _build_kernel() -> npt.NDArray[np.float64]:
     # pyiqa's `fspecial` builds a 2D Gaussian in float64 then `.float()`s the kernel
     # to float32. We separate the same isotropic Gaussian and round to float32 so
     # that downstream float64 arithmetic carries the exact same kernel coefficients.
-    half = (KERNEL_SIZE - 1) // 2
+    half = (_KERNEL_SIZE - 1) // 2
     x = np.arange(-half, half + 1, dtype=np.float64)
-    k = np.exp(-(x * x) / (2.0 * SIGMA * SIGMA))
+    k = np.exp(-(x * x) / (2.0 * _SIGMA * _SIGMA))
     k /= k.sum()
     return k.astype(np.float32).astype(np.float64)
 
 
 _KERNEL = _build_kernel()
-_PAD = KERNEL_SIZE // 2
+_PAD = _KERNEL_SIZE // 2
 
 
 def _conv_axis(img: npt.NDArray[np.float64], axis: int) -> npt.NDArray[np.float64]:
     pad_width = [(0, 0), (0, 0)]
     pad_width[axis] = (_PAD, _PAD)
     padded = np.pad(img, pad_width)
-    windows = np.lib.stride_tricks.sliding_window_view(padded, KERNEL_SIZE, axis=axis)
+    windows = np.lib.stride_tricks.sliding_window_view(padded, _KERNEL_SIZE, axis=axis)
     return windows @ _KERNEL
 
 
