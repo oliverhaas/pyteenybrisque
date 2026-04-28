@@ -20,7 +20,8 @@ _RGB_NDIM = 3
 
 def _to_luma(image: object) -> npt.NDArray[np.float32]:
     if isinstance(image, (str, PathLike)):
-        arr = np.asarray(Image.open(image).convert("RGB"))  # ty: ignore[invalid-argument-type]
+        with Image.open(image) as pil:  # ty: ignore[invalid-argument-type]
+            arr = np.asarray(pil.convert("RGB"))
     elif isinstance(image, Image.Image):
         arr = np.asarray(image.convert("RGB"))
     else:

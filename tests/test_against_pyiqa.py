@@ -58,6 +58,20 @@ def test_accepts_numpy_array():
     assert direct == pytest.approx(via_arr, abs=1e-9)
 
 
+def test_accepts_str_and_path_equivalently():
+    path = _IMAGES[0]
+    via_path = pyteenybrisque.score(path)
+    via_str = pyteenybrisque.score(str(path))
+    assert via_path == via_str
+
+
+def test_path_input_does_not_leak_file_handle(recwarn):
+    # The path branch must close the underlying file -- a leak would surface as
+    # a ResourceWarning on Pillow's __del__.
+    pyteenybrisque.score(_IMAGES[0])
+    assert not [w for w in recwarn.list if issubclass(w.category, ResourceWarning)]
+
+
 def test_grayscale_array():
     arr = np.asarray(Image.open(_IMAGES[0]).convert("L"))
     s = pyteenybrisque.score(arr)
