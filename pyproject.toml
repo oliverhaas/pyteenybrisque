@@ -1,0 +1,92 @@
+[project]
+name = "pyteenybrisque"
+version = "0.1.0a1"
+description = "Minimal numpy-only BRISQUE no-reference image quality scorer."
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.14"
+keywords = []
+authors = [{ name = "Oliver Haas", email = "ohaas@e1plus.de" }]
+classifiers = [
+  "Development Status :: 2 - Pre-Alpha",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.14",
+  "Typing :: Typed",
+]
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/oliverhaas/pyteenybrisque"
+Documentation = "https://oliverhaas.github.io/pyteenybrisque/"
+Repository = "https://github.com/oliverhaas/pyteenybrisque.git"
+Changelog = "https://oliverhaas.github.io/pyteenybrisque/reference/changelog/"
+
+[dependency-groups]
+dev = [
+  "pre-commit==4.5.1",
+  "pytest==9.0.2",
+  "pytest-cov==7.1.0",
+  "pytest-xdist==3.8.0",
+  "ruff==0.15.8",
+  "ty==0.0.24",
+]
+docs = ["mkdocs==1.6.1", "mkdocs-material==9.7.6", "mike==2.1.4"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["pyteenybrisque"]
+
+[tool.hatch.build.targets.sdist]
+include = ["pyteenybrisque", "LICENSE", "README.md"]
+
+[tool.ruff]
+target-version = "py314"
+line-length = 120
+fix = true
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = ["COM812", "D", "E501", "EM", "TRY003"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = [
+  "ANN",
+  "ARG",
+  "F841",
+  "FBT",
+  "PT006",
+  "PT011",
+  "PT013",
+  "PT018",
+  "S101",
+  "S105",
+]
+
+[tool.ty.environment]
+python-version = "3.14"
+
+[[tool.ty.overrides]]
+include = ["tests/**"]
+
+[tool.ty.overrides.rules]
+unresolved-attribute = "ignore"
+
+[tool.pytest.ini_options]
+addopts = "--cov=pyteenybrisque --cov-report=term-missing --cov-report=xml --no-cov-on-fail"
+testpaths = ["tests"]
+xfail_strict = true
+
+[tool.coverage.run]
+omit = ["tests/*"]
+
+[tool.coverage.report]
+precision = 2
+skip_covered = true
