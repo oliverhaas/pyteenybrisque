@@ -18,7 +18,7 @@ classifiers = [
   "Programming Language :: Python :: 3.14",
   "Typing :: Typed",
 ]
-dependencies = []
+dependencies = ["numpy>=2.4.4", "pillow>=12.2.0"]
 
 [project.urls]
 Homepage = "https://github.com/oliverhaas/pyteenybrisque"
@@ -29,10 +29,12 @@ Changelog = "https://oliverhaas.github.io/pyteenybrisque/reference/changelog/"
 [dependency-groups]
 dev = [
   "pre-commit==4.6.0",
+  "pyiqa>=0.1.15.post2",
   "pytest==9.0.3",
   "pytest-cov==7.1.0",
   "pytest-xdist==3.8.0",
   "ruff==0.15.12",
+  "scipy>=1.17.1",
   "ty==0.0.33",
 ]
 docs = ["mkdocs==1.6.1", "mkdocs-material==9.7.6", "mike==2.2.0"]
@@ -69,6 +71,7 @@ ignore = ["COM812", "D", "E501", "EM", "TRY003"]
   "S101",
   "S105",
 ]
+"tools/**" = ["INP001", "T201"]
 
 [tool.ty.environment]
 python-version = "3.14"
