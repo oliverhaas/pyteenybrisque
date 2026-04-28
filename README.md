@@ -10,7 +10,7 @@ runtime dependencies (`numpy` and `Pillow`), ~250 KB of vendored model weights.
 ```python
 import pyteenybrisque
 
-score = pyteenybrisque.score("photo.jpg")
+score = pyteenybrisque.score(image="photo.jpg")
 print(score)  # lower is better; ~0-100 scale
 ```
 

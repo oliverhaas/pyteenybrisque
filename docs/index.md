@@ -5,7 +5,7 @@ Tiny numpy-only BRISQUE no-reference image quality scorer.
 ```python
 import pyteenybrisque
 
-score = pyteenybrisque.score("photo.jpg")
+score = pyteenybrisque.score(image="photo.jpg")
 ```
 
 A single public function returns a BRISQUE no-reference quality score.

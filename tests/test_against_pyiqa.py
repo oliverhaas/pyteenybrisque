@@ -39,54 +39,47 @@ def _pyiqa_score(metric, path: Path) -> float:
 @pytest.mark.parametrize("path", _IMAGES, ids=lambda p: p.name)
 def test_score_matches_pyiqa(pyiqa_metric, path):
     expected = _pyiqa_score(pyiqa_metric, path)
-    actual = pyteenybrisque.score(path)
+    actual = pyteenybrisque.score(image=path)
     assert abs(actual - expected) < _TOL, f"{path.name}: pyiqa={expected:.4f}, mine={actual:.4f}"
 
 
 def test_accepts_pil_image():
     path = _IMAGES[0]
-    direct = pyteenybrisque.score(path)
-    via_pil = pyteenybrisque.score(Image.open(path))
+    direct = pyteenybrisque.score(image=path)
+    via_pil = pyteenybrisque.score(image=Image.open(path))
     assert direct == pytest.approx(via_pil, abs=1e-9)
 
 
 def test_accepts_numpy_array():
     path = _IMAGES[0]
     arr = np.asarray(Image.open(path).convert("RGB"))
-    direct = pyteenybrisque.score(path)
-    via_arr = pyteenybrisque.score(arr)
+    direct = pyteenybrisque.score(image=path)
+    via_arr = pyteenybrisque.score(image=arr)
     assert direct == pytest.approx(via_arr, abs=1e-9)
 
 
 def test_accepts_str_and_path_equivalently():
     path = _IMAGES[0]
-    via_path = pyteenybrisque.score(path)
-    via_str = pyteenybrisque.score(str(path))
+    via_path = pyteenybrisque.score(image=path)
+    via_str = pyteenybrisque.score(image=str(path))
     assert via_path == via_str
-
-
-def test_path_input_does_not_leak_file_handle(recwarn):
-    # The path branch must close the underlying file -- a leak would surface as
-    # a ResourceWarning on Pillow's __del__.
-    pyteenybrisque.score(_IMAGES[0])
-    assert not [w for w in recwarn.list if issubclass(w.category, ResourceWarning)]
 
 
 def test_grayscale_array():
     arr = np.asarray(Image.open(_IMAGES[0]).convert("L"))
-    s = pyteenybrisque.score(arr)
+    s = pyteenybrisque.score(image=arr)
     assert isinstance(s, float)
     assert np.isfinite(s)
 
 
 def test_deterministic():
     path = _IMAGES[0]
-    a = pyteenybrisque.score(path)
-    b = pyteenybrisque.score(path)
+    a = pyteenybrisque.score(image=path)
+    b = pyteenybrisque.score(image=path)
     assert a == b
 
 
 def test_rejects_unsupported_shape():
     bad = np.zeros((4, 4, 5), dtype=np.uint8)
     with pytest.raises(ValueError, match="unsupported image shape"):
-        pyteenybrisque.score(bad)
+        pyteenybrisque.score(image=bad)

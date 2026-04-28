@@ -25,6 +25,7 @@ def _build_kernel() -> npt.NDArray[np.float64]:
 
 
 _KERNEL = _build_kernel()
+_KERNEL.flags.writeable = False
 _PAD = _KERNEL_SIZE // 2
 
 

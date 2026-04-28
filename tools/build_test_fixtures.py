@@ -1,29 +1,37 @@
 """Build BRISQUE test fixtures: high-res sources + quality-degraded variants.
 
-Run once. Downloads stable Picsum images and produces, for each source:
-- a heavy JPEG-compressed variant
-- a heavy WebP-compressed variant
+For each source seed: downloads from Picsum, verifies the downloaded bytes
+match the manifest below, and produces variants:
+- a heavy JPEG-compressed variant (q=10)
+- a heavy WebP-compressed variant (q=10)
 - a 4x downscale + nearest upscale (blocky)
 - a 4x downscale + Lanczos upscale (soft)
 
-Output goes to `tests/data/`. Idempotent on overwrite.
+The hash check exists because Picsum's CDN may serve different bytes for the
+same seed over time (re-encoding, mirror drift). If the check fails, either
+update `_SOURCE_SHA256` to accept the new bytes (and re-baseline the pyiqa
+scores in tests) or pin a different seed.
+
+Output goes to `tests/data/`. Tests are pinned to the committed bytes; this
+script is for one-time regeneration.
 """
 
+import hashlib
 from pathlib import Path
 from urllib.request import urlretrieve
 
 from PIL import Image
 
 _DATA = Path(__file__).resolve().parent.parent / "tests" / "data"
-
-# (picsum seed, local name). 2000x1333 is ~2.7 MP.
-_SOURCES = [
-    (134, "src134"),
-    (177, "src177"),
-    (231, "src231"),
-]
 _W, _H = 2000, 1333
 _DOWN = 4
+
+# (picsum seed, local name, sha256 of the downloaded JPEG bytes).
+_SOURCES = [
+    (134, "src134", "e71404e1c956b5abf9df40b213f927050bc6f3145d6bce24e5ce7312cf3fb3f3"),
+    (177, "src177", "d0999d9e0e4da370d5745dc1e1cf00515a99224c71bbf429e3745cdd90a67689"),
+    (231, "src231", "6a68c623988d0d5953dcc0e9909f8a01deaad81921a0094b7a6c9f02b6602d0c"),
+]
 
 
 def _save_jpeg(img: Image.Image, path: Path, quality: int) -> None:
@@ -45,13 +53,23 @@ def _resample(img: Image.Image, mode: Image.Resampling) -> Image.Image:
 
 def main() -> None:
     _DATA.mkdir(parents=True, exist_ok=True)
-    for seed, name in _SOURCES:
+    for seed, name, expected_sha in _SOURCES:
         src = _DATA / f"{name}.jpg"
         url = f"https://picsum.photos/seed/{seed}/{_W}/{_H}.jpg"
         print(f"downloading {url} -> {src.name}")
         urlretrieve(url, src)  # noqa: S310
 
-        img = Image.open(src).convert("RGB")
+        actual_sha = hashlib.sha256(src.read_bytes()).hexdigest()
+        if actual_sha != expected_sha:
+            raise SystemExit(
+                f"sha256 mismatch for seed {seed}: "
+                f"got {actual_sha}, expected {expected_sha}. "
+                f"Picsum may have re-encoded the image. Update _SOURCE_SHA256 "
+                f"and re-baseline the pyiqa scores if the new bytes are acceptable.",
+            )
+
+        with Image.open(src) as pil:
+            img = pil.convert("RGB")
         _save_jpeg(img, _DATA / f"{name}_jpeg10.jpg", quality=10)
         _save_webp(img, _DATA / f"{name}_webp10.webp", quality=10)
         # Blocky resample compresses well as PNG (4x4 blocks of identical pixels).

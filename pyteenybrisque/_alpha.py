@@ -15,6 +15,8 @@ with resources.files(__package__).joinpath("_weights/alpha.npz").open("rb") as _
     _GAMMA: npt.NDArray[np.float32] = _T["gamma"]
     _R_GGD: npt.NDArray[np.float32] = _T["r_ggd"]
     _R_AGGD: npt.NDArray[np.float32] = _T["r_aggd"]
+    for _arr in (_GAMMA, _R_GGD, _R_AGGD):
+        _arr.flags.writeable = False
 
 
 def find_alpha_ggd(rho: float) -> float:

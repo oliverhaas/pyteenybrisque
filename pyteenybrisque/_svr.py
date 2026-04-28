@@ -13,6 +13,8 @@ with resources.files(__package__).joinpath("_weights/svm.npz").open("rb") as _fh
     _RHO = float(_W["rho"])
     _FEAT_MIN: npt.NDArray[np.float32] = _W["feat_min"]
     _FEAT_RANGE: npt.NDArray[np.float32] = _W["feat_range"]
+    for _arr in (_SV, _SV_COEF, _FEAT_MIN, _FEAT_RANGE):
+        _arr.flags.writeable = False
 
 
 def predict(features: npt.NDArray[np.float32]) -> float:

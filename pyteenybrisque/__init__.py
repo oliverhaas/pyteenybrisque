@@ -14,8 +14,10 @@ __all__ = ["score"]
 
 # BT.601 luma weights -- matches pyiqa's `to_y_channel` (YIQ Y channel).
 _LUMA_RGB = np.array([0.299, 0.587, 0.114], dtype=np.float32)
+_LUMA_RGB.flags.writeable = False
 _GRAY_NDIM = 2
 _RGB_NDIM = 3
+_VALID_CHANNELS = frozenset({3, 4})
 
 
 def _to_luma(image: object) -> npt.NDArray[np.float32]:
@@ -29,7 +31,7 @@ def _to_luma(image: object) -> npt.NDArray[np.float32]:
 
     if arr.ndim == _GRAY_NDIM:
         arr = np.stack([arr] * 3, axis=-1)
-    elif arr.ndim != _RGB_NDIM or arr.shape[2] not in (3, 4):
+    elif arr.ndim != _RGB_NDIM or arr.shape[2] not in _VALID_CHANNELS:
         raise ValueError(f"unsupported image shape {arr.shape}")
     arr = arr[..., :3]
 
@@ -38,7 +40,7 @@ def _to_luma(image: object) -> npt.NDArray[np.float32]:
     return np.round(luma01 * 255.0).astype(np.float32)
 
 
-def score(image: object) -> float:
+def score(*, image: object) -> float:
     """BRISQUE no-reference quality score (lower is better, ~0-100).
 
     Accepts a path (str / `os.PathLike`), a `PIL.Image.Image`, or a numpy
