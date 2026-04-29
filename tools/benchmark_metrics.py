@@ -5,7 +5,7 @@ Sources: 8 Kodak images (lossless 768x512 PNGs, the canonical IQA test set).
 Downloaded once into `benchmarks/sources/` and verified by sha256.
 
 Metrics:
-- BRISQUE (this package, pure numpy)
+- BRISQUE (this package)
 - MUSIQ (pyiqa, transformer trained on KonIQ-10k)
 - MANIQA (pyiqa, multi-dimensional attention)
 - CLIP-IQA (pyiqa, vision-language)
