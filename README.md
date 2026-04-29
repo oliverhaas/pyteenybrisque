@@ -36,6 +36,32 @@ isn't possible from numpy alone -- pyiqa's float32 PyTorch conv2d adds its own
 ~0.01-1.0 point noise via the catastrophic cancellation in the local-variance
 step.
 
+## How it compares
+
+Each metric in the table below was scored on the [Kodak True Color test
+set](https://r0k.us/graphics/kodak/) (8 lossless 768×512 PNGs) under six
+degradation sweeps. Per source and metric, scores are min-max normalised
+across the sweep so 0 = best in run, 1 = worst; the line is the median
+across sources, the shaded band is the inter-quartile range.
+
+<table>
+<tr>
+<td><img src="https://raw.githubusercontent.com/oliverhaas/pyteenybrisque/main/benchmarks/jpeg_quality.png" alt="JPEG quality sweep" width="100%"/></td>
+<td><img src="https://raw.githubusercontent.com/oliverhaas/pyteenybrisque/main/benchmarks/webp_quality.png" alt="WebP quality sweep" width="100%"/></td>
+<td><img src="https://raw.githubusercontent.com/oliverhaas/pyteenybrisque/main/benchmarks/gaussian_blur.png" alt="Gaussian blur sweep" width="100%"/></td>
+</tr>
+<tr>
+<td><img src="https://raw.githubusercontent.com/oliverhaas/pyteenybrisque/main/benchmarks/gaussian_noise.png" alt="Gaussian noise sweep" width="100%"/></td>
+<td><img src="https://raw.githubusercontent.com/oliverhaas/pyteenybrisque/main/benchmarks/blocky_upscale.png" alt="Blocky upscale sweep" width="100%"/></td>
+<td><img src="https://raw.githubusercontent.com/oliverhaas/pyteenybrisque/main/benchmarks/blurry_upscale.png" alt="Blurry upscale sweep" width="100%"/></td>
+</tr>
+</table>
+
+BRISQUE is competitive with the deep-learning metrics on every degradation,
+and is more sensitive than MUSIQ / MANIQA on WebP and on mid-quality JPEG.
+The benchmark script lives at `tools/benchmark_metrics.py` and is
+reproducible end-to-end.
+
 ## Why "teeny"
 
 `pyiqa` is the right tool if you want every IQA metric in one place. It pulls

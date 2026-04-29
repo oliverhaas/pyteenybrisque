@@ -28,6 +28,7 @@ Changelog = "https://oliverhaas.github.io/pyteenybrisque/reference/changelog/"
 
 [dependency-groups]
 dev = [
+  "matplotlib>=3.10.9",
   "pre-commit==4.6.0",
   "pyiqa>=0.1.15.post2",
   "pytest==9.0.3",

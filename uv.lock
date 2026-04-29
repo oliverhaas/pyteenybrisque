@@ -1681,6 +1681,7 @@ dependencies = [
 
 [package.dev-dependencies]
 dev = [
+    { name = "matplotlib" },
     { name = "pre-commit" },
     { name = "pyiqa" },
     { name = "pytest" },
@@ -1704,6 +1705,7 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "matplotlib", specifier = ">=3.10.9" },
     { name = "pre-commit", specifier = "==4.6.0" },
     { name = "pyiqa", specifier = ">=0.1.15.post2" },
     { name = "pytest", specifier = "==9.0.3" },

@@ -16,3 +16,4 @@ CLAUDE.md
 site/
 *.sqlite3
 .DS_Store
+/benchmarks/sources/
