@@ -1,4 +1,4 @@
-"""Minimal numpy-only BRISQUE no-reference image quality scorer."""
+"""Minimal BRISQUE no-reference image quality scorer (numpy + Pillow)."""
 
 from os import PathLike
 

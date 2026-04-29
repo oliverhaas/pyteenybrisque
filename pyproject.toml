@@ -1,7 +1,7 @@
 [project]
 name = "pyteenybrisque"
 version = "0.1.0a1"
-description = "Minimal numpy-only BRISQUE no-reference image quality scorer."
+description = "Minimal BRISQUE no-reference image quality scorer (numpy + Pillow)."
 readme = "README.md"
 license = { text = "MIT" }
 requires-python = ">=3.14"

@@ -1,11 +1,5 @@
-"""End-to-end check that `pyteenybrisque.score` agrees with `pyiqa`'s BRISQUE.
-
-The reference is pyiqa's float32 PyTorch implementation. We do everything in
-numpy (with a float64 Gaussian to keep the catastrophic cancellation in the
-local-variance step tame) so byte-for-byte agreement isn't possible -- pyiqa's
-float32 conv2d/normalisation introduces its own ~0.1-1.0 BRISQUE-point noise
-on natural images. The tolerance below is sized to that noise floor.
-"""
+"""End-to-end check that `pyteenybrisque.score` agrees with `pyiqa`'s BRISQUE
+within a tolerance sized to the cross-implementation noise floor."""
 
 from pathlib import Path
 

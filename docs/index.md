@@ -1,6 +1,7 @@
 # pyteenybrisque
 
-Tiny numpy-only BRISQUE no-reference image quality scorer.
+Tiny BRISQUE no-reference image quality scorer. Two runtime dependencies:
+`numpy` and `Pillow`.
 
 ```python
 import pyteenybrisque
@@ -43,11 +44,7 @@ Pillow.
 ## Agreement with pyiqa
 
 The score agrees with [`pyiqa`](https://github.com/chaofengc/IQA-PyTorch)'s
-BRISQUE within ~0.1 BRISQUE points on natural images. Bit-for-bit agreement
-isn't possible from numpy alone -- pyiqa's float32 PyTorch conv2d adds
-~0.01-1.0 point noise via catastrophic cancellation in the local-variance
-step. This package uses float64 for the Gaussian, so it's typically closer
-to the original MATLAB reference than pyiqa is.
+BRISQUE within ~0.1 BRISQUE points on natural images.
 
 ## Limitations
 
