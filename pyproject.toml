@@ -22,9 +22,7 @@ dependencies = ["numpy>=2.4.4", "pillow>=12.2.0"]
 
 [project.urls]
 Homepage = "https://github.com/oliverhaas/pyteenybrisque"
-Documentation = "https://oliverhaas.github.io/pyteenybrisque/"
 Repository = "https://github.com/oliverhaas/pyteenybrisque.git"
-Changelog = "https://oliverhaas.github.io/pyteenybrisque/reference/changelog/"
 
 [dependency-groups]
 dev = [
@@ -38,7 +36,6 @@ dev = [
   "scipy>=1.17.1",
   "ty==0.0.33",
 ]
-docs = ["mkdocs==1.6.1", "mkdocs-material==9.7.6", "mike==2.2.0"]
 
 [build-system]
 requires = ["hatchling"]

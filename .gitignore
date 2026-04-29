@@ -13,7 +13,6 @@ coverage.xml
 .pytest_cache
 dump.rdb
 CLAUDE.md
-site/
 *.sqlite3
 .DS_Store
 /benchmarks/sources/

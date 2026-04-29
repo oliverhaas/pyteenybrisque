@@ -65,10 +65,6 @@ reproducible end-to-end.
 in PyTorch and ~2 GB of dependencies. This package does one metric, on top of
 just `numpy` and `Pillow`, in ~250 KB. Use it when BRISQUE is all you need.
 
-## Documentation
-
-[oliverhaas.github.io/pyteenybrisque](https://oliverhaas.github.io/pyteenybrisque/)
-
 ## License
 
 MIT
