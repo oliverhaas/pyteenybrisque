@@ -1,6 +1,6 @@
 [project]
 name = "pyteenybrisque"
-version = "0.1.0"
+version = "0.1.1"
 description = "Minimal BRISQUE no-reference image quality scorer (numpy + Pillow)."
 readme = "README.md"
 license = { text = "MIT" }
@@ -8,7 +8,7 @@ requires-python = ">=3.14"
 keywords = []
 authors = [{ name = "Oliver Haas", email = "ohaas@e1plus.de" }]
 classifiers = [
-  "Development Status :: 2 - Pre-Alpha",
+  "Development Status :: 4 - Beta",
   "Intended Audience :: Developers",
   "License :: OSI Approved :: MIT License",
   "Operating System :: OS Independent",
