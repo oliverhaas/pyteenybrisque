@@ -1,6 +1,6 @@
 [project]
 name = "pyteenybrisque"
-version = "0.1.0a1"
+version = "0.1.0"
 description = "Minimal BRISQUE no-reference image quality scorer (numpy + Pillow)."
 readme = "README.md"
 license = { text = "MIT" }

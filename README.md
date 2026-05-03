@@ -54,8 +54,6 @@ across sources, the shaded band is the inter-quartile range.
 </tr>
 </table>
 
-BRISQUE is competitive with the deep-learning metrics on every degradation,
-and is more sensitive than MUSIQ / MANIQA on WebP and on mid-quality JPEG.
 The benchmark script lives at `tools/benchmark_metrics.py` and is
 reproducible end-to-end.
 
