@@ -34,7 +34,7 @@ dev = [
   "pytest-xdist==3.8.0",
   "ruff==0.15.12",
   "scipy>=1.17.1",
-  "ty==0.0.33",
+  "ty==0.0.34",
 ]
 
 [build-system]
