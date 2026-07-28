@@ -27,14 +27,14 @@ Repository = "https://github.com/oliverhaas/pyteenybrisque.git"
 [dependency-groups]
 dev = [
   "matplotlib>=3.10.9",
-  "pre-commit==4.6.0",
+  "pre-commit==4.6.1",
   "pyiqa>=0.1.15.post2",
   "pytest==9.1.1",
   "pytest-cov==7.1.0",
   "pytest-xdist==3.8.0",
-  "ruff==0.15.22",
+  "ruff==0.16.0",
   "scipy>=1.17.1",
-  "ty==0.0.61",
+  "ty==0.0.64",
 ]
 
 [build-system]
