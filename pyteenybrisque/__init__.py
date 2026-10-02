@@ -22,7 +22,7 @@ _VALID_CHANNELS = frozenset({3, 4})
 
 def _to_luma(image: object) -> npt.NDArray[np.float32]:
     if isinstance(image, (str, PathLike)):
-        with Image.open(image) as pil:  # ty: ignore[invalid-argument-type]
+        with Image.open(image) as pil:
             arr = np.asarray(pil.convert("RGB"))
     elif isinstance(image, Image.Image):
         arr = np.asarray(image.convert("RGB"))

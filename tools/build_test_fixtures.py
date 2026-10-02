@@ -57,7 +57,7 @@ def main() -> None:
         src = _DATA / f"{name}.jpg"
         url = f"https://picsum.photos/seed/{seed}/{_W}/{_H}.jpg"
         print(f"downloading {url} -> {src.name}")
-        urlretrieve(url, src)  # noqa: S310
+        urlretrieve(url, src)
 
         actual_sha = hashlib.sha256(src.read_bytes()).hexdigest()
         if actual_sha != expected_sha:
