@@ -1,6 +1,7 @@
 """End-to-end check that `pyteenybrisque.score` agrees with `pyiqa`'s BRISQUE
 within a tolerance sized to the cross-implementation noise floor."""
 
+import tracemalloc
 from pathlib import Path
 
 import numpy as np
@@ -71,6 +72,19 @@ def test_deterministic():
     a = pyteenybrisque.score(image=path)
     b = pyteenybrisque.score(image=path)
     assert a == b
+
+
+def test_peak_memory_stays_below_one_float64_image():
+    h, w = 1500, 2000
+    arr = np.random.default_rng(0).integers(0, 256, (h, w, 3), dtype=np.uint8)
+    float64_image_bytes = h * w * np.dtype(np.float64).itemsize
+    tracemalloc.start()
+    try:
+        pyteenybrisque.score(image=arr)
+        _, peak = tracemalloc.get_traced_memory()
+    finally:
+        tracemalloc.stop()
+    assert peak < float64_image_bytes, f"peak {peak / float64_image_bytes:.2f}x a float64 image"
 
 
 def test_rejects_unsupported_shape():

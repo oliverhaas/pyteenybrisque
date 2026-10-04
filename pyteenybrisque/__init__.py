@@ -18,26 +18,33 @@ _LUMA_RGB.flags.writeable = False
 _GRAY_NDIM = 2
 _RGB_NDIM = 3
 _VALID_CHANNELS = frozenset({3, 4})
+_STRIP_PIXELS = 1 << 17
 
 
-def _to_luma(image: object) -> npt.NDArray[np.float32]:
+def _to_luma(image: object) -> npt.NDArray[np.uint8]:
     if isinstance(image, (str, PathLike)):
         with Image.open(image) as pil:
-            arr = np.asarray(pil.convert("RGB"))
-    elif isinstance(image, Image.Image):
-        arr = np.asarray(image.convert("RGB"))
+            return _to_luma(pil)
+
+    if isinstance(image, Image.Image):
+        w, h = image.size
+        step = max(1, _STRIP_PIXELS // w)
+        strips = (np.asarray(image.crop((0, top, w, min(top + step, h))).convert("RGB")) for top in range(0, h, step))
     else:
         arr = np.asarray(image)
+        if arr.ndim == _GRAY_NDIM:
+            arr = np.broadcast_to(arr[..., None], (*arr.shape, 3))
+        elif arr.ndim != _RGB_NDIM or arr.shape[2] not in _VALID_CHANNELS:
+            raise ValueError(f"unsupported image shape {arr.shape}")
+        h, w = arr.shape[:2]
+        step = max(1, _STRIP_PIXELS // w)
+        strips = (arr[top : top + step, :, :3] for top in range(0, h, step))
 
-    if arr.ndim == _GRAY_NDIM:
-        arr = np.stack([arr] * 3, axis=-1)
-    elif arr.ndim != _RGB_NDIM or arr.shape[2] not in _VALID_CHANNELS:
-        raise ValueError(f"unsupported image shape {arr.shape}")
-    arr = arr[..., :3]
-
-    rgb01 = arr.astype(np.float32) / 255.0 if np.issubdtype(arr.dtype, np.integer) else arr.astype(np.float32)
-    luma01 = rgb01 @ _LUMA_RGB
-    return np.round(luma01 * 255.0).astype(np.float32)
+    luma = np.empty((h, w), dtype=np.uint8)
+    for top, strip in zip(range(0, h, step), strips, strict=True):
+        rgb01 = strip.astype(np.float32) / 255.0 if np.issubdtype(strip.dtype, np.integer) else strip.astype(np.float32)
+        luma[top : top + step] = np.clip(np.round((rgb01 @ _LUMA_RGB) * 255.0), 0, 255)
+    return luma
 
 
 def score(*, image: object) -> float:

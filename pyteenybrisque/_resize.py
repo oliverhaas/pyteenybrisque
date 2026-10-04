@@ -1,9 +1,7 @@
-"""MATLAB-style bicubic 2x downsample with antialiasing.
+"""pyiqa's MATLAB-style `imresize` (cubic, antialiased) fixed to a 2x downsample of a 2D image.
 
-Numpy port of pyiqa's `pyiqa.matlab_utils.resize.imresize` specialised to the
-one configuration this package needs: cubic kernel, antialiasing on, scale
-0.5, 2D input. The reference uses reflect padding where the boundary pixel
-is duplicated -- equivalent to numpy's `mode='symmetric'`.
+Borders reflect with the edge pixel repeated, as numpy's `mode='symmetric'` does.
+Output pixel s reads 10 inputs from 2s - 4 with the same weights for every s.
 """
 
 import math
@@ -13,8 +11,14 @@ import numpy.typing as npt
 
 _CUBIC_A = -0.5
 _SCALE = 0.5
+_STRIDE = round(1 / _SCALE)
 # At scale 0.5 the antialiased cubic kernel grows to ceil(4 / 0.5) + 2 = 10 taps.
 _KERNEL_SIZE = math.ceil(4 / _SCALE) + 2
+# Input position of output pixel 0, and the first input pixel of its window.
+_POS_0 = 0.5 / _SCALE - 0.5
+_START_0 = math.floor(_POS_0) - _KERNEL_SIZE // 2 + 1
+_PAD_PRE = -_START_0
+_STRIP_PIXELS = 1 << 17
 
 
 def _cubic(x: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:
@@ -29,33 +33,37 @@ def _cubic(x: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:
     return cont_01 + cont_12
 
 
-def _resize_axis(x: npt.NDArray[np.floating], axis: int) -> npt.NDArray[np.floating]:
-    h_in = x.shape[axis]
-    size = math.ceil(h_in * _SCALE)
-
-    pos = (np.arange(size, dtype=np.float64) + 0.5) / _SCALE - 0.5
-    base = np.floor(pos).astype(np.int64) - (_KERNEL_SIZE // 2) + 1
-    dist = pos - base.astype(np.float64)
-
-    buffer_pos = (dist[None, :] - np.arange(_KERNEL_SIZE, dtype=np.float64)[:, None]) * _SCALE
-    weight = _cubic(buffer_pos)
-    weight = weight / weight.sum(axis=0, keepdims=True)
-    weight = weight.astype(x.dtype)
-
-    pad_pre = max(0, -int(base.min()))
-    pad_post = max(0, int(base.max() + _KERNEL_SIZE - 1) - h_in + 1)
-    base = base + pad_pre
-
-    pad_width = [(0, 0), (0, 0)]
-    pad_width[axis] = (pad_pre, pad_post)
-    x_pad = np.pad(x, pad_width, mode="symmetric")
-
-    idx = base[None, :] + np.arange(_KERNEL_SIZE, dtype=np.int64)[:, None]
-
-    if axis == 0:
-        return np.einsum("ks,ksw->sw", weight, x_pad[idx, :])
-    return np.einsum("ks,hks->hs", weight, x_pad[:, idx])
+def _build_weight() -> npt.NDArray[np.float64]:
+    dist = _POS_0 - _START_0 - np.arange(_KERNEL_SIZE, dtype=np.float64)
+    weight = _cubic(dist * _SCALE)
+    return weight / weight.sum()
 
 
-def downsample_half(img: npt.NDArray[np.floating]) -> npt.NDArray[np.floating]:
-    return _resize_axis(_resize_axis(img, axis=0), axis=1)
+# pyiqa resizes in float32.
+_WEIGHT = _build_weight().astype(np.float32)
+_WEIGHT.flags.writeable = False
+
+
+def _padded_index(n: int) -> npt.NDArray[np.intp]:
+    size = math.ceil(n * _SCALE)
+    idx = np.mod(np.arange(-_PAD_PRE, _STRIDE * (size - 1) + _KERNEL_SIZE - _PAD_PRE), 2 * n)
+    return np.where(idx < n, idx, 2 * n - 1 - idx)
+
+
+def _windows(x: npt.NDArray[np.floating], axis: int) -> npt.NDArray[np.floating]:
+    every_stride = [slice(None), slice(None)]
+    every_stride[axis] = slice(None, None, _STRIDE)
+    return np.lib.stride_tricks.sliding_window_view(x, _KERNEL_SIZE, axis=axis)[tuple(every_stride)]
+
+
+def downsample_half(img: npt.NDArray[np.floating | np.integer]) -> npt.NDArray[np.float32]:
+    h, w = img.shape
+    rows, cols = _padded_index(h), _padded_index(w)
+    out = np.empty((math.ceil(h * _SCALE), math.ceil(w * _SCALE)), dtype=np.float32)
+    step = max(1, _STRIP_PIXELS // w)
+    for top in range(0, out.shape[0], step):
+        bottom = min(top + step, out.shape[0])
+        slab = img[rows[_STRIDE * top : _STRIDE * (bottom - 1) + _KERNEL_SIZE]].astype(np.float32, copy=False)
+        strip = _windows(slab, axis=0) @ _WEIGHT
+        out[top:bottom] = _windows(strip[:, cols], axis=1) @ _WEIGHT
+    return out
