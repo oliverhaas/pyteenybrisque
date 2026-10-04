@@ -44,14 +44,16 @@ def _ggd(sums: npt.NDArray[np.float64], n: int) -> tuple[float, float]:
 
 def _aggd(sums: npt.NDArray[np.float64], n: int) -> tuple[float, float, float, float]:
     count_left, count_right, sq_left, sq_right, abs_sum = sums
-    left_std = math.sqrt(sq_left / count_left)
-    right_std = math.sqrt(sq_right / count_right)
+    # A side without samples has zero spread, as on a uniform image.
+    left_std = math.sqrt(sq_left / count_left) if count_left else 0.0
+    right_std = math.sqrt(sq_right / count_right) if count_right else 0.0
 
-    gammahat = left_std / right_std
     abs_mean = float(abs_sum) / n
     sq_mean = float(sq_left + sq_right) / n
     rhat = (abs_mean * abs_mean) / sq_mean
-    rhatnorm = rhat * (gammahat**3 + 1.0) * (gammahat + 1.0) / (gammahat * gammahat + 1.0) ** 2
+    # The gammahat correction, written in left_std and right_std so either can be zero.
+    left, right = left_std, right_std
+    rhatnorm = rhat * (left**3 + right**3) * (left + right) / (left * left + right * right) ** 2
 
     alpha = find_alpha_aggd(rhatnorm)
     log_eta = math.lgamma(2.0 / alpha) - (math.lgamma(1.0 / alpha) + math.lgamma(3.0 / alpha)) / 2.0
@@ -80,6 +82,8 @@ def features_per_scale(luma: npt.NDArray[np.floating | np.integer]) -> npt.NDArr
         for i, (dy, dx) in enumerate(_SHIFTS, start=1):
             neighbour = np.roll(mscn[1 - dy : len(mscn) - 1 - dy], dx, axis=1)
             totals[i] += _signed_sums(center * neighbour)
+    if not totals[:, 4].all():
+        raise ValueError("BRISQUE is undefined for an image without contrast, such as an all-black one")
 
     out = np.empty(18, dtype=np.float32)
     out[0], out[1] = _ggd(totals[0], h * w)

@@ -87,6 +87,17 @@ def test_peak_memory_stays_below_one_float64_image():
     assert peak < float64_image_bytes, f"peak {peak / float64_image_bytes:.2f}x a float64 image"
 
 
+def test_all_black_image_raises_value_error():
+    with pytest.raises(ValueError, match="without contrast"):
+        pyteenybrisque.score(image=np.zeros((64, 64), dtype=np.uint8))
+
+
+@pytest.mark.parametrize("level", [1, 128, 255])
+def test_uniform_image_scores_finite(level):
+    s = pyteenybrisque.score(image=np.full((64, 64), level, dtype=np.uint8))
+    assert np.isfinite(s)
+
+
 def test_rejects_unsupported_shape():
     bad = np.zeros((4, 4, 5), dtype=np.uint8)
     with pytest.raises(ValueError, match="unsupported image shape"):
