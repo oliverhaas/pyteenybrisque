@@ -8,9 +8,9 @@ from PIL import Image
 
 from ._features import features_per_scale
 from ._resize import downsample_half
-from ._svr import predict
+from ._svr import BUNDLED_WEIGHTS, Weights, predict
 
-__all__ = ["score"]
+__all__ = ["Weights", "features", "score"]
 
 # BT.601 luma weights -- matches pyiqa's `to_y_channel` (YIQ Y channel).
 _LUMA_RGB = np.array([0.299, 0.587, 0.114], dtype=np.float32)
@@ -47,12 +47,22 @@ def _to_luma(image: object) -> npt.NDArray[np.uint8]:
     return luma
 
 
-def score(*, image: object) -> float:
-    """BRISQUE no-reference quality score (lower is better, ~0-100).
+def score(*, image: object, weights: Weights | None = None) -> float:
+    """BRISQUE quality score, ~0-100 with lower meaning higher quality, or on the label scale of custom `weights`.
 
     Accepts a path (str / `os.PathLike`), a `PIL.Image.Image`, or a numpy
     array (HxW grayscale or HxWx{3,4} RGB / RGBA, uint8 or float in [0, 1]).
     """
+    if weights is None:
+        weights = BUNDLED_WEIGHTS
+    elif not isinstance(weights, Weights):
+        raise TypeError(
+            f"weights must be a pyteenybrisque.Weights, got {type(weights).__name__}; read a file with Weights.load(path)",
+        )
+    return predict(features(image=image), weights)
+
+
+def features(*, image: object) -> npt.NDArray[np.float32]:
+    """The 36 BRISQUE features of an image: 18 at full size, then 18 at half size."""
     luma = _to_luma(image)
-    feats = np.concatenate([features_per_scale(luma), features_per_scale(downsample_half(luma))])
-    return predict(feats)
+    return np.concatenate([features_per_scale(luma), features_per_scale(downsample_half(luma))])

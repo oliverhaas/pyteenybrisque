@@ -4,7 +4,7 @@
 [![Python versions](https://img.shields.io/pypi/pyversions/pyteenybrisque.svg)](https://pypi.org/project/pyteenybrisque/)
 [![CI](https://github.com/oliverhaas/pyteenybrisque/actions/workflows/ci.yml/badge.svg)](https://github.com/oliverhaas/pyteenybrisque/actions/workflows/ci.yml)
 
-Tiny BRISQUE no-reference image quality scorer. One function, two runtime
+Tiny BRISQUE no-reference image quality scorer. One call, two runtime
 dependencies (`numpy` and `Pillow`), ~250 KB of vendored model weights.
 
 ```python
@@ -16,12 +16,53 @@ print(score)  # lower is better; ~0-100 scale
 
 `score()` accepts a path, a `PIL.Image.Image`, or a numpy array (`HxW`
 grayscale or `HxWx{3,4}` RGB / RGBA, uint8 or float in `[0, 1]`).
+To score with weights trained on your own labelled images, see
+[Training on your own labels](#training-on-your-own-labels).
 
 ## Installation
 
 ```console
 pip install pyteenybrisque
 ```
+
+## Training on your own labels
+
+The bundled weights were trained on LIVE IQA and its five distortion types.
+For images from another domain, label a few thousand of them with a quality
+rating (for example 1-5, or a mean opinion score) and train new weights:
+
+```console
+pip install pyteenybrisque[train]
+```
+
+```python
+from pathlib import Path
+
+from pyteenybrisque import train
+
+if __name__ == "__main__":  # extract_features starts worker processes
+    paths = sorted(Path("photos").glob("*.jpg"))
+    labels = [...]  # one rating per path
+    features = train.extract_features(images=paths, workers=8)
+    weights = train.fit(features=features, labels=labels)
+    print(weights.info)  # chosen c and gamma, cross-validated RMSE and Spearman correlation
+    weights.save("my_weights.npz")
+```
+
+Scoring with the saved weights needs only the base install:
+
+```python
+import pyteenybrisque
+
+weights = pyteenybrisque.Weights.load("my_weights.npz")
+pyteenybrisque.score(image="photo.jpg", weights=weights)
+```
+
+With your weights, `score()` predicts on the scale of your labels, so higher
+means better if your ratings say so. `extract_features` gives a NaN row and a
+warning for an image it cannot score; drop those rows and their labels
+before `fit`. Keep the features with `np.save` to refit without extracting
+them again.
 
 ## What it computes
 
