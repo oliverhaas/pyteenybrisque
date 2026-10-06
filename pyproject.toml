@@ -20,6 +20,9 @@ classifiers = [
 ]
 dependencies = ["numpy>=2.4.4", "pillow>=12.2.0"]
 
+[project.optional-dependencies]
+train = ["scikit-learn>=1.9.1"]
+
 [project.urls]
 Homepage = "https://github.com/oliverhaas/pyteenybrisque"
 Repository = "https://github.com/oliverhaas/pyteenybrisque.git"
@@ -33,6 +36,7 @@ dev = [
   "pytest-cov==7.1.0",
   "pytest-xdist==3.8.0",
   "ruff==0.16.10",
+  "scikit-learn>=1.9.1",
   "scipy>=1.17.1",
   "ty==0.0.84",
 ]
