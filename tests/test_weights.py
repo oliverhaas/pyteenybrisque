@@ -72,7 +72,7 @@ def test_load_rejects_malformed_file(tmp_path, key, value, match):
     else:
         arrays[key] = value
     path = tmp_path / "bad.npz"
-    np.savez(path, **arrays)
+    np.savez(path, allow_pickle=False, **arrays)
     with pytest.raises(ValueError, match=match):
         Weights.load(path)
 

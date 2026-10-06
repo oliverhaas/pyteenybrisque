@@ -21,12 +21,12 @@ _KEYS = frozenset({"sv", "sv_coef", "gamma", "rho", "feat_min", "feat_range"})
 class Weights:
     """RBF SVR parameters: features scaled to [-1, 1] by `feat_min` and `feat_range` score `kernel @ sv_coef - rho`."""
 
-    sv: npt.NDArray[np.float32]
-    sv_coef: npt.NDArray[np.float32]
+    sv: npt.NDArray[np.floating]
+    sv_coef: npt.NDArray[np.floating]
     gamma: float
     rho: float
-    feat_min: npt.NDArray[np.float32]
-    feat_range: npt.NDArray[np.float32]
+    feat_min: npt.NDArray[np.floating]
+    feat_range: npt.NDArray[np.floating]
     info: Mapping[str, float] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
