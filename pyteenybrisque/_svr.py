@@ -3,7 +3,6 @@
 from dataclasses import dataclass, field
 from importlib import resources
 from pathlib import Path
-from types import MappingProxyType
 from typing import TYPE_CHECKING, Self
 
 import numpy as np
@@ -46,7 +45,7 @@ class Weights:
             object.__setattr__(self, name, arr)
         object.__setattr__(self, "gamma", float(self.gamma))
         object.__setattr__(self, "rho", float(self.rho))
-        object.__setattr__(self, "info", MappingProxyType({k: float(v) for k, v in self.info.items()}))
+        object.__setattr__(self, "info", {k: float(v) for k, v in self.info.items()})
 
     @classmethod
     def load(cls, path: str | PathLike[str]) -> Self:

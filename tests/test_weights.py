@@ -1,5 +1,6 @@
 """Scoring with custom `pyteenybrisque.Weights`, and saving and loading them."""
 
+from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 
 import numpy as np
@@ -24,9 +25,10 @@ def test_score_returns_prediction_of_custom_weights():
     assert pyteenybrisque.score(image=_IMAGE, weights=weights) == _OFFSET
 
 
-def test_saved_weights_load_back_identically(tmp_path):
+@pytest.fixture
+def weights():
     rng = np.random.default_rng(0)
-    weights = Weights(
+    return Weights(
         sv=rng.uniform(-1, 1, (5, 36)),
         sv_coef=rng.normal(size=5),
         gamma=0.05,
@@ -35,11 +37,20 @@ def test_saved_weights_load_back_identically(tmp_path):
         feat_range=np.full(36, 4.0),
         info={"cv_rmse": 1.5},
     )
+
+
+def test_saved_weights_load_back_identically(tmp_path, weights):
     path = tmp_path / "my_weights"
     weights.save(path)
     loaded = Weights.load(path)
     assert pyteenybrisque.score(image=_IMAGE, weights=loaded) == pyteenybrisque.score(image=_IMAGE, weights=weights)
     assert dict(loaded.info) == {"cv_rmse": 1.5}
+
+
+def test_custom_weights_score_in_worker_process(weights):
+    with ProcessPoolExecutor(max_workers=1) as pool:
+        remote = pool.submit(pyteenybrisque.score, image=_IMAGE, weights=weights).result()
+    assert remote == pyteenybrisque.score(image=_IMAGE, weights=weights)
 
 
 @pytest.mark.parametrize(
