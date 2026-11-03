@@ -29,12 +29,12 @@ dev = [
   "matplotlib>=3.10.9",
   "pre-commit==4.7.0",
   "pyiqa>=0.1.15.post2",
-  "pytest==9.1.1",
+  "pytest==9.2.0",
   "pytest-cov==7.1.0",
   "pytest-xdist==3.8.0",
-  "ruff==0.17.2",
+  "ruff==0.17.3",
   "scipy>=1.17.1",
-  "ty==0.0.91",
+  "ty==0.0.95",
 ]
 
 [build-system]
